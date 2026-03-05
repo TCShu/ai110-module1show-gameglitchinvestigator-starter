@@ -6,8 +6,12 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 
 - What did the game look like the first time you ran it?
 - List at least two concrete bugs you noticed at the start  
-  (for example: "the secret number kept changing" or "the hints were backwards").
-
+ANSWER: 
+  1. In the enter your guess bar it says to click Enter to apply however, when I click apply nothing happens, the guess is not submitted.
+  2. The "Go lower" and "Go higher" hints are incorrect and should be the opposite.
+  3. After clicking the New Game button istead of creating a new game it does not do anything.
+  4. The sidebar when changing difficulty does not change the actual game and it stays on 
+  5. Hard mode ranges between 1 - 50 and Normal mode ranges between 1- 100, I assume those two are mixed up.
 ---
 
 ## 2. How did you use AI as a teammate?
@@ -15,6 +19,10 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 - Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
 - Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
 - Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result).
+ANSWER:
+  1. I used Claude to help me fix the bugs and set up venv to download all the requirements for the project.
+  2. The New Game button didn't restart the game. Claude suggested taht the it resets attpts to 0 but leves the status as "won" or "lost",which prevents the game from continuing. Plus it's using a hardcoded range instead of respecting the difficulty setting.Therefore, Claude suggested to change the varibles status = "playing", history = [], uses random.randint(low, high) (which was hardcoded to 1-100).
+  3. For some reason Claude decided to break the UI structure of the columns of Submit Game, New Game adn Show hint buttons/checkbox. It seperated the button left them under the guessing textbox but took the checkbox and put it above the textbox.
 
 ---
 
