@@ -4,7 +4,9 @@ import streamlit as st
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
         return 1, 20
-    # FIXME: Logic breaks here
+    # FIX: Normal and Hard ranges were swapped (Normal was 1-50, Hard was 1-100).
+    # I noticed the bug by playing the game; Claude confirmed the values needed to be
+    # swapped so harder difficulty means a wider range.
     if difficulty == "Normal":
         return 1, 50
     if difficulty == "Hard":
@@ -35,7 +37,9 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
-        # FIXME: Logic breaks here
+        # FIX: Hint messages were reversed — "Go LOWER" showed when the guess was too low
+        # and vice versa. I caught this by testing the game manually. Claude explained the
+        # condition should be guess > secret → "Go LOWER", guess < secret → "Go HIGHER".
         if guess > secret:
             return "Too High", "📉 Go LOWER!"
         else:
@@ -44,7 +48,8 @@ def check_guess(guess, secret):
         g = str(guess)
         if g == secret:
             return "Win", "🎉 Correct!"
-        # FIXME: Logic breaks here
+        # FIX: Same reversed-hint bug in the string-comparison fallback path.
+        # Claude identified this duplicate of the bug while fixing the main branch above.
         if g > secret:
             return "Too High", "📉 Go LOWER!"
         return "Too Low", "📈 Go HIGHER!"
@@ -92,7 +97,9 @@ low, high = get_range_for_difficulty(difficulty)
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
-# FIXME: Logic breaks here - session state management is all over the place and should be refactored into a separate function or class
+# FIX: Session state was not tracking difficulty, so changing the sidebar had no effect.
+# Claude suggested storing difficulty in session_state and comparing it on each rerun
+# to detect a change and reset the game — I verified this fixed the difficulty bug manually.
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
@@ -126,7 +133,10 @@ st.info(
     f"Attempts left: {attempt_limit - st.session_state.attempts + 1}"
 )
 
-# FIXME: Logic breaks here
+# FIX: The form was missing clear_on_submit=True, so the input field kept the old guess
+# after submitting. Claude suggested adding clear_on_submit=True to the st.form call.
+# Note: Claude initially moved the Show Hint checkbox outside the columns, breaking the
+# layout — I corrected it back to keep all three controls in the same column row.
 with st.form("guess_form", clear_on_submit=True):
     raw_guess = st.text_input(
         "Enter your guess:",
@@ -140,7 +150,11 @@ with st.form("guess_form", clear_on_submit=True):
     with col3:
         show_hint = st.checkbox("Show hint", value=True)
 
-# FIXME: Logic breaks here - the game state management is scattered across multiple places in the code, making it difficult to track and maintain. Consider centralizing the game state management in a single class or module to improve readability and maintainability.
+# FIX: New Game button did nothing because status was left as "won"/"lost" and the range
+# was hardcoded to 1-100 instead of using the selected difficulty. Claude suggested
+# resetting status = "playing", history = [], and using random.randint(low, high)
+# (derived from get_range_for_difficulty). I confirmed the fix by clicking New Game and
+# checking that a fresh game started with the correct range.
 if new_game:
     st.session_state.attempts = 1
     st.session_state.secret = random.randint(low, high)
@@ -167,7 +181,9 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        # FIXME: Logic breaks here - every other attempt state was corrupted, but the secret was never properly stored in session state, leading to inconsistent game behavior. This should be refactored to ensure the secret is always properly stored and accessed from session state.
+        # FIX: The secret was not being read from session_state consistently, causing it
+        # to regenerate on every Streamlit rerun. Claude explained that all persistent
+        # game values must be stored in st.session_state so they survive reruns.
         secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
@@ -197,7 +213,8 @@ if submit:
                     f"Score: {st.session_state.score}"
                 )
 
-# FIXME: Logic breaks here 
+# FIX: Debug expander now reflects live session_state values, confirming all fixes above
+# work correctly at runtime. Claude suggested keeping this panel for manual verification.
 with st.expander("Developer Debug Info"):
     st.write("Secret:", st.session_state.secret)
     st.write("Attempts:", st.session_state.attempts)
